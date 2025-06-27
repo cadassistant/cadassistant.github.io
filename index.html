@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="CAD-Assistant: Tool-Augmented VLLMs as Generic CAD Task Solvers">
+  <meta name="keywords" content="CAD, VLLM, FreeCAD, AI, Computer Vision">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CAD-Assistant: Tool-Augmented VLLMs as Generic CAD Task Solvers</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    @media (max-width: 768px) {
+      .navbar-brand {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+      }
+      .navbar-brand > div {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 8px !important;
+      }
+      .navbar-brand img {
+        margin: 0 auto !important;
+        display: block !important;
+      }
+      .navbar-brand span {
+        font-size: 2rem !important;
+        margin-top: 0.5rem !important;
+      }
+    }
+
+    .cad-title-main {
+      font-family: 'Google Sans', 'Noto Sans', 'Castoro', serif;
+      font-weight: bold;
+    }
+
+    .cad-title-mono {
+      font-family: 'Courier New', 'Monaco', 'Consolas', monospace;
+    }
+
+    .cad-mono {
+      font-family: 'Courier New', 'Monaco', 'Consolas', monospace;
+      font-weight: bold;
+      /* Add more styles if you want, e.g. font-size, color, etc. */
+    }
+
+    .title-container {
+      padding-top: 1rem;
+    }
+    .title-flex {
+      width: 100%;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+    }
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .cad-logo {
+      height: 3em;
+      width: auto;
+      display: block;
+      transform: translateY(-6px);
+    }
+    .cad-title-main {
+      font-family: 'Google Sans', 'Noto Sans', 'Castoro', serif;
+      font-weight: bold;
+    }
+    .cad-title-mono {
+      font-family: 'Courier New', 'Monaco', 'Consolas', monospace;
+      font-size: 3rem;
+      font-weight: bold;
+    }
+    .cad-title-sub {
+      font-family: 'Google Sans', 'Noto Sans', 'Castoro', serif;
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-top: 8px;
+      text-align: center;
+    }
+    @media (max-width: 768px) {
+      .title-row {
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+      .cad-title-mono {
+        font-size: 2rem;
+      }
+      .cad-title-sub {
+        font-size: 1.3rem;
+      }
+    }
+
+    .methodology-image {
+      max-width: 65%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+      .methodology-image {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Navigation Menu -->
+  <nav class="navbar" role="navigation" aria-label="main navigation" style="padding-top: 1rem;">
+    <div class="container is-max-desktop">
+      <div class="navbar-menu">
+        <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+          <a class="navbar-item" href="#" title="Home" style="margin-top: -43px;">
+            <span class="icon">
+                <i class="fas fa-home"></i>
+            </span>
+          </a>
+
+          <div class="navbar-item has-dropdown is-hoverable" style="margin-top: -40px;">
+            <a class="navbar-link">
+              More Projects
+            </a>
+            <div class="navbar-dropdown">
+              <a class="navbar-item" href="https://morfis.ai/">
+                Morfis
+              </a>
+              <a class="navbar-item" href="https://github.com/filaPro/cad-recode">
+                CAD Recode
+              </a>
+              <a class="navbar-item" href="https://cvi2snt.github.io/picasso/">
+                PICASSO
+              </a>
+              <a class="navbar-item" href="https://cvi2snt.github.io/davinci/">
+                DAVINCI
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <!-- End Top Menu -->
+
+  <!-- Title Section -->
+  <div class="container is-max-desktop title-container">
+    <div class="navbar-brand title-flex">
+      <div class="title-row">
+        <img src="./static/images/Cadassistant.jpg" alt="CADAssistant Logo" class="cad-logo" />
+        <span class="cad-title-main">
+          <span class="cad-title-mono">CAD-Assistant</span>
+        </span>
+      </div>
+      <span class="cad-title-sub">Tool-Augmented VLLMs as Generic CAD Task Solvers</span>
+    </div>
+  </div>
+  <!-- End Title Section -->
+
+  <section class="hero" style="margin-top: 0rem;">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                <a href="https://dimitrismallis.github.io/">Dimitrios Mallis</a><sup>1</sup>,</span>
+              <span class="author-block">
+                <a href="https://askaradeniz.github.io/">Ahmet Serdar Karadeniz</a><sup>1</sup>,</span>
+              <span class="author-block">
+                <a href="https://sebo-the-tramp.github.io/">Sebastian Cavada</a><sup>1</sup>,</span>
+              <span class="author-block">
+                <a href="https://www.uni.lu/snt-en/people/danila-rukhovich/">Danila Rukhovich</a><sup>1</sup>,</span>
+              <span class="author-block">
+                <a href="https://nickyfot.github.io/">Niki Foteinopoulou</a>,</span>
+              <span class="author-block">
+                <a href="https://www.linkedin.com/in/kseniya-cherenkova-a3a65a54/">Kseniya Cherenkova</a><sup>2</sup>,</span>
+              <span class="author-block">
+                <a href="https://www.uni.lu/en/person/NTAwMzU1NDVfX0FuaXMgS0FDRU0=/">Anis Kacem</a><sup>1</sup>,</span>
+              <span class="author-block">
+                <a href="https://www.uni.lu/snt-en/people/djamila-aouada/">Djamila Aouada</a><sup>1</sup></span>
+            </div>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">SnT, University of Luxembourg<sup>1</sup></span>, <span class="author-block">Artec3D<sup>2</sup></span>
+            </div>
+
+            <div class="column has-text-centered">
+              <div class="publication-links">
+                <!-- PDF Link. -->
+                <!-- <span class="link-block">
+                  <a href="https://arxiv.org/pdf/2412.13810"
+                     class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </span>
+                    <span>Paper</span>
+                  </a>
+                </span> -->
+                <span class="link-block">
+                  <a href="https://arxiv.org/pdf/2412.13810"
+                     class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                        <i class="ai ai-arxiv"></i>
+                    </span>
+                    <span>arXiv</span>
+                  </a>
+                </span>
+                <!-- Video Link. -->
+                <!-- <span class="link-block">
+                  <a href="#"
+                     class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                        <i class="fab fa-youtube"></i>
+                    </span>
+                    <span>Video</span>
+                  </a>
+                </span> -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="is-size-5 publication-authors"></div>
+    <div class="notification is-primary is-light" style="margin: 0rem auto; padding: 1rem; border-radius: 8px; max-width: 600px; text-align: center; border: 1px solid #ccc; color: rgb(0, 0, 0);">
+      <span class="author-block">
+        <span class="cad-mono">CAD-Assistant</span> is accepted to <a href="https://iccv.thecvf.com/">ICCV 2025</a> 🎉🎉🎉
+        </a>
+      </span>
+    </div>
+  </div>
+  </section>
+
+  <section class="hero teaser" style="margin-top: rem; margin-bottom: 2rem;">
+  </br>
+    <div class="container is-max-desktop">
+      <div class="hero-body">
+        <div class="columns is-centered has-text-centered">
+          <div class="column is-full-width">
+            <div class="item">
+              <img src="./static/images/teaser.jpg" alt="CAD-Assistant Teaser" class="teaser-image" style="width: 100%; max-width: none; display: block; position: relative;"/>
+            </div>
+          </br>
+            <h2 class="subtitle has-text-centered" style="font-size: 1.1rem;">
+              <span class="cad-mono">CAD-Assistant</span> is a tool-augmented VLLM framework for AI-assisted CAD. Our framework generated FreeCAD code that is executed within CAD software directly and can process multimodal inputs, including textual queries, sketches, drawn commands and 3D scans. This figure showcases various examples of generic CAD queries and the responses generated by <span class="cad-mono">CAD-Assistant</span> .
+            </h2>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section is-light" style="margin-top: 1rem; margin-bottom: 2rem; padding-top: 4rem; padding-bottom: 4rem; background-color: rgb(246, 246, 255);">
+    <div class="container is-max-desktop">
+      <!-- Abstract. -->
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Abstract</h2>
+          <div class="content has-text-justified">
+            <p>
+                We propose <span class="cad-mono">CAD-Assistant</span> , a general-purpose CAD
+                agent for AI-assisted design. Our approach is based on
+                a powerful Vision and Large Language Model (VLLM) as
+                a planner and a tool-augmentation paradigm using CADspecific tools. <span class="cad-mono">CAD-Assistant</span>  addresses multimodal
+                user queries by generating actions that are iteratively executed on a Python interpreter equipped with the FreeCAD
+                software, accessed via its Python API. Our framework is
+                able to assess the impact of generated CAD commands
+                on geometry and adapts subsequent actions based on the
+                evolving state of the CAD design. We consider a wide range
+                of CAD-specific tools including a sketch image parameterizer, rendering modules, a 2D cross-section generator, and
+                other specialized routines. CAD-Assistant is evaluated
+                on multiple CAD benchmarks, where it outperforms VLLM
+                baselines and supervised task-specific methods. Beyond
+                existing benchmarks, we qualitatively demonstrate the potential of tool-augmented VLLMs as general-purpose CAD
+                solvers across diverse workflows.
+            </p>
+          </div>
+        </div>
+      </div>
+      <!--/ Abstract. -->
+    </div>
+  </section>
+
+  <section class="section is-light" style="margin-top: 0rem; margin-bottom: 0rem; padding-top: 1em; padding-bottom: 0rem;">
+    <div class="container is-max-desktop">
+
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">How <span style="font-family: 'Google Sans', 'Noto Sans', 'Castoro', serif; font-weight: bold; "><span style="font-family: 'Courier New', 'Monaco', 'Consolas', monospace;">CADAssistant</span></span> Works</h2>
+          <div class="content has-text-justified">
+            <p>
+              <span class="cad-mono">CAD-Assistant</span> is a tool-augmented framework that uses a vision-language model to plan CAD actions, enhanced by specialized tools for geometric reasoning and multimodal understanding. It generates CAD code via the FreeCAD API, iteratively refining actions based on the evolving design state. The followinng annimation shows the execution flow for autoconstraining. <span class="cad-mono">CAD-Assistant</span> utilizes the sketch recognizer function for multimodal CAD understanding and generates constraints in a chain-of-thought manner.
+            </p>
+          </div>
+          <div class="columns is-centered">
+            
+            <div class="column">
+              <div class="content">
+                <div id="scroll-animation-section" style="display: flex; flex-direction: column; gap: 0px; align-items: center; margin: 40px 0;">
+                  <img src="./static/images/flow1.png" class="scroll-anim-img" style="max-width: 100%; width: 100%; max-width: 600px; object-fit: cover; border-radius: 10px; opacity: 0; transition: opacity 0.3s;">
+                  <img src="./static/images/flow2.png" class="scroll-anim-img" style="max-width: 100%; width: 100%; max-width: 600px; object-fit: cover; border-radius: 10px; opacity: 0; transition: opacity 0.3s;">
+                  <img src="./static/images/flow3.png" class="scroll-anim-img" style="max-width: 100%; width: 100%; max-width: 600px; object-fit: cover; border-radius: 10px; opacity: 0; transition: opacity 0.3s;">
+                  <img src="./static/images/flow4.png" class="scroll-anim-img" style="max-width: 100%; width: 100%; max-width: 600px; object-fit: cover; border-radius: 10px; opacity: 0; transition: opacity 0.3s;">
+                  <img src="./static/images/flow5.png" class="scroll-anim-img" style="max-width: 100%; width: 100%; max-width: 600px; object-fit: cover; border-radius: 10px; opacity: 0; transition: opacity 0.3s;">
+                  <img src="./static/images/flow6.png" class="scroll-anim-img" style="max-width: 100%; width: 100%; max-width: 600px; object-fit: cover; border-radius: 10px; opacity: 0; transition: opacity 0.3s;">
+                  <img src="./static/images/flow7.png" class="scroll-anim-img" style="max-width: 100%; width: 100%; max-width: 600px; object-fit: cover; border-radius: 10px; opacity: 0; transition: opacity 0.3s;">
+                  <img src="./static/images/flow8.png" class="scroll-anim-img" style="max-width: 100%; width: 100%; max-width: 600px; object-fit: cover; border-radius: 10px; opacity: 0; transition: opacity 0.3s;">
+                  <img src="./static/images/flow9.png" class="scroll-anim-img" style="max-width: 100%; width: 100%; max-width: 600px; object-fit: cover; border-radius: 10px; opacity: 0; transition: opacity 0.3s;">
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section is-light" style="margin-bottom: 2rem; padding-top: 4rem; padding-bottom: 4rem; ">
+    <div class="container is-max-desktop">
+      <!-- Methodology. -->
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-full-width">
+          <h2 class="title is-3"> General Framework</h2>
+          <div class="content has-text-justified">
+            <p>
+              The <span class="cad-mono">CAD-Assistant</span> framework can be described as follows: A multimodal user request \( x_0 \) is provided as context to a VLLM planner \( P \) that responds with a plan \( p_t \) and an action \( a_t \) (python code). The action is executed on an environment \( E \) equipped with CAD software. The output generated from the execution is then concatenated with the previously generated context and fed back to the planner, enabling the generation of the next iterative step. When \( x_0 \) has been successfully addressed, \( P \) generates \( P_T \) , a special <span class="cad-mono">TERMINATE</span> plan that indicates the completion of <span class="cad-mono">CAD-Assistant</span>’s response
+            </p>
+          </div>
+          <div class="columns is-centered">
+            <div class="column">
+              <div class="content" style="display: flex; flex-direction: column; align-items: center;">
+                <img src="./static/images/system_overview.jpg" alt="Methodology Overview" class="methodology-image" />
+                <p><strong>Figure 1:</strong> Overview of <span class="cad-mono">CAD-Assistant</span>.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--/ Methodology. -->
+    </div>
+  </section>
+
+  <section class="section" style="margin-bottom: 2rem; padding-top: 2rem; padding-bottom: 2rem; background-color: rgb(250, 255, 246);">
+    <div class="container is-max-desktop">
+      
+      <!-- CAD Tools. -->
+      <div class="columns is-centered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">CAD-Specific Tools</h2>
+          <div class="content has-text-justified">
+            <p><span class="cad-mono">CAD-Assistant</span> integrates a wide range of external CAD-specific modules, including a hand-drawn image
+              parameterizer, rendering modules for multimodal CAD sequence understanding, a specialized utility for analysis of
+              geometric constraints and a 2D cross-section generator for
+              VLLM interaction with 3D scans. Our CAD-specific tool set is summarized in the following table:
+            </p>
+          </div>
+
+          <div class="table-container">
+            <table class="table is-bordered is-striped is-hoverable is-fullwidth">
+              <thead>
+                <tr>
+                  <th><strong>Tool</strong></th>
+                  <th><strong>Description</strong></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><img src="./static/images/pylogo.png" alt="Python Logo" style="height: 1.2em; vertical-align: middle; margin-right: 6px;"/>Python Interpreter</td>
+                  <td>Action format and logical operations.</td>
+                </tr>
+                <tr>
+                  <td><img src="./static/images/freecadlogo.png" alt="FreeCAD" style="height: 1.2em; vertical-align: middle; margin-right: 6px;"/>FreeCAD</td>
+                  <td>Integration with CAD software</td>
+                </tr>
+                <tr>
+                  <td><img src="./static/images/davincilogo.png" alt="Sketch Parameterizer" style="height: 1.2em; vertical-align: middle; margin-right: 6px;"/>Sketch Parameterizer</td>
+                  <td>Hand-drawn sketch image to CAD sketch network</td>
+                </tr>
+                <tr>
+                  <td><img src="./static/images/recognizerlogo.png" alt="Sketch Recognizer" style="height: 1.2em; vertical-align: middle; margin-right: 6px;"/>Sketch Recognizer</td>
+                  <td>Renders sketch and plots parameters</td>
+                </tr>
+                <tr>
+                  <td><img src="./static/images/recognizerlogo.png" alt="Solid Recognizer" style="height: 1.2em; vertical-align: middle; margin-right: 6px;"/>Solid Recognizer</td>
+                  <td>Renders a 3D CAD model and plots parameters.</td>
+                </tr>
+                <tr>
+                  <td><img src="./static/images/toollogo.png" alt="Constraint Checker" style="height: 1.2em; vertical-align: middle; margin-right: 6px;"/>Constraint Checker</td>
+                  <td>Renders a 3D CAD model and plots parameters.</td>
+                </tr>
+                <tr>
+                  <td><img src="./static/images/crosssectionlogo.png" alt="Crosssection Extract" style="height: 1.2em; vertical-align: middle; margin-right: 6px;"/>Crosssection Extract</td>
+                  <td>Generates an image of a cross section from a 3D mesh.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="margin-bottom: 4rem; padding-top: 2rem; padding-bottom: 2rem;">
+    <div class="container is-max-desktop">
+      <!-- Applications. -->
+      <div class="columns is-centered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">Real-World Applications</h2>
+          <div class="content has-text-justified">
+            <p>
+              We identify new emerging capabilities of tool-augmented CAD agents and demonstrates their potential beyond existing benchmarks on real-world use cases.
+              On the following <b>Figure 2</b> <i>(left)</i> we showcase an example of our method utilizing the CAD commands Revolution and Fillet that are not included in existing datasets.
+              Tool augmentation also allows interaction with multimodal inputs such as sketches and 3D scans. <b>Figure 2</b> <i>(center)</i> showcases <span class="cad-mono">CAD-Assistant</span>’s ability to
+              process 3D scans along with textual queries to extract crosssections, parameterize features, and reverse engineer CAD
+              8models from scans. In <b>Figure 2</b> <i>(right)</i>, the VLLM planner determines to semantically interpret drawn operation directly without utilizing additional CAD-specific tools for
+              fulfilling user requests. Note that generated FreeCAD code is interpretable, editable and easily extendable.
+            </p>
+          </div>
+          <br>
+          <br>
+          <div class="content has-text-centered">
+            <img src="./static/images/applications.jpg" alt="Real-World Applications" class="application-image"/>
+            <p><strong>Figure 2:</strong> Real-world CAD use cases.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="margin-bottom: 4rem; padding-top: 2rem; padding-bottom: 2rem; background-color: rgb(246, 253, 255);">
+    <div class="container is-max-desktop" >
+      
+      <h2 class="title is-3 has-text-centered">Results and Comparisons</h2>
+      <div class="content has-text-justified">
+        <p>
+          To address the lack of benchmarks for tool use akin to specialized sets commonly used
+          in other domains, this work adopts an evaluation
+          setting for generic CAD agents leveraging multiple existing
+          CAD tasks. Evaluations are conducted for 2D and 3D CAD
+          question answering, auto-constraining, and hand-drawn
+          CAD sketch image parametrization. <span class="cad-mono">CAD-Assistant</span>
+          outperforms both VLLM baselines and supervised taskspecific methods trained on large-scale datasets, despite
+          being prompted in a zero-shot manner.
+        </p>
+      </div>
+      <!-- Performance Tables -->
+      <div class="columns is-centered">
+        <div class="column is-full-width">
+          
+          <h3 class="title is-4">2D/3D CAD Question Answering Performance <i>(SGPBench)</i></h3>
+          <div class="table-container">
+            <table class="table is-bordered is-striped is-hoverable is-fullwidth">
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th>Planner</th>
+                  <th><i>2D Acc</i> &#8593; </th>
+                  <th><i>3D Acc</i>&#8593; </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td rowspan="3">SGPBench</td>
+                  <td>GPT-4 mini</td>
+                  <td>0.594</td>
+                  <td>0.737</td>
+                </tr>
+                <tr>
+                  <td>GPT-4 Turbo</td>
+                  <td>0.674</td>
+                  <td>0.762</td>
+                </tr>
+                <tr>
+                  <td>GPT-4o</td>
+                  <td>0.686</td>
+                  <td>0.782</td>
+                </tr>
+                <tr class="has-background-success-light">
+                  <td rowspan="3"><span class="cad-mono">CAD-Assistant</span></td>
+                  <td>GPT-4 mini</td>
+                  <td>0.614</td>
+                  <td>0.783</td>
+                </tr>
+                <tr class="has-background-success-light" >
+                  <td>GPT-4 Turbo</td>
+                  <td>0.741</td>
+                  <td>0.825</td>
+                </tr>
+                <tr class="has-background-success-light">
+                  <td>GPT-4o</td>
+                  <td><b>0.791</b></td>
+                  <td><b>0.857</b></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="title is-4">Auto-constraining Performance <i>(SketchGraphs)</i></h3>
+          <div class="table-container">
+            <table class="table is-bordered is-striped is-hoverable is-fullwidth">
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th>Type</th>
+                  <th><i>PF1</i> &#8593;</th>
+                  <th><i>CF1</i> &#8593;</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>GPT-4o</td>
+                  <td><i>zero-shot</i></td>
+                  <td>0.693</td>
+                  <td>0.274</td>
+                </tr>
+                <tr>
+                  <td>Vitruvion</td>
+                  <td><i>supervised</i></td>
+                  <td>0.706</td>
+                  <td>0.238</td>
+                </tr>
+                <tr class="has-background-success-light">
+                  <td><span class="cad-mono">CAD-Assistant</span></td>
+                  <td><i>zero-shot</i></td>
+                  <td><b>0.979</b></td>
+                  <td><b>0.484</b></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="title is-4">Hand-drawn Image Parametrization Performance <i>(SketchGraphs)</i></h3>
+          <div class="table-container">
+            <table class="table is-bordered is-striped is-hoverable is-fullwidth">
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th><i>Acc</i> &#8593;</th>
+                  <th><i>CD</i> &#8595;</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Vitruvion</td>
+                  <td>0.659</td>
+                  <td>1.586</td>
+                </tr>
+                <tr>
+                  <td>Davinci </td>
+                  <td><b>0.789</b></td>
+                  <td>1.184</td>
+                </tr>
+                <tr class="has-background-success-light">
+                  <td><span class="cad-mono">CAD-Assistant</span></td>
+                  <td>0.784</td>
+                  <td><b>0.680</b></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <h2 class="title">BibTeX</h2>
+      <pre><code>@inproceedings{mallis2025cadassistant,
+        author    = {Mallis, Dimitrios and Karadeniz, Ahmet Serdar and Cavada, Sebastian and Rukhovich, Danila and Foteinopoulou, Niki and Cherenkova, Kseniya and Kacem, Anis and Aouada, Djamila},
+        title     = {{CAD-Assistant: Tool-Augmented VLLMs as Generic CAD Task Solvers}},
+        booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
+        year      = {2025}
+      }</code></pre>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-8-desktop is-12-mobile">
+          <div class="content">
+            <p class="has-text-centered-mobile">
+              This website is licensed under a <a rel="license"
+                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+                Commons Attribution-ShareAlike 4.0 International License</a>.
+            </p>
+            <p class="has-text-centered-mobile">
+              This means you are free to borrow the <a href="https://github.com/nerfies/nerfies.github.io">source
+                code</a> of this website,
+              we just ask that you link back to this page in the footer.
+              Please remember to remove the analytics code included in the header of the website which
+              you do not want on your website.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const images = document.querySelectorAll('#scroll-animation-section .scroll-anim-img');
+      function revealOnScroll() {
+        const section = document.getElementById('scroll-animation-section');
+        const sectionRect = section.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        const totalImages = images.length;
+
+        // Calculate how much of the section is visible
+        // Start animation as soon as the section's top is within the viewport
+        const sectionTop = sectionRect.top;
+        const sectionBottom = sectionRect.bottom;
+
+        // If the section is not yet in view, hide all images
+        if (sectionBottom < 0 || sectionTop > windowHeight) {
+          images.forEach(img => img.style.opacity = 0);
+          return;
+        }
+
+        let offset = 50; // or whatever you prefer
+        let speedup = 1.6; // try 2, 2.5, 3, etc.
+        let progress = ((windowHeight + offset - sectionTop) / (sectionRect.height + windowHeight)) * speedup;
+        progress = Math.max(0, Math.min(1, progress));
+
+        // Reveal images based on progress
+        const imagesToShow = Math.max(1, Math.floor(progress * totalImages));
+        images.forEach((img, idx) => {
+          img.style.opacity = idx < imagesToShow ? 1 : 0;
+        });
+      }
+      window.addEventListener('scroll', revealOnScroll);
+      window.addEventListener('resize', revealOnScroll);
+      revealOnScroll();
+    });
+  </script>
+
+</body>
+</html>
